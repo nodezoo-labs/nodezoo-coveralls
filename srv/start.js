@@ -9,11 +9,13 @@ var RedisStore = require('seneca-redis-store')
 var envs = process.env
 var opts = {
   seneca: {
-    tag: envs.COVERALLS_TAG || 'nodezoo-coveralls'
+    tag: envs.COVERALLS_TAG || 'nodezoo-coveralls',
+    log: 'none'
   },
   coveralls: {
     token: envs.COVERALLS_TOKEN || 'NO_TOKEN',
-    registry: envs.COVERALLS_REGISTRY || 'https://coveralls.com/'
+    registry: 'http://registry.npmjs.org/',
+    url: envs.COVERALLS_REGISTRY || 'https://coveralls.io/'
   },
   mesh: {
     auto: true,
