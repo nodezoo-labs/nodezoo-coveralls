@@ -1,7 +1,7 @@
 {
   "name": "nodezoo-coveralls",
-  "version": "0.1.0",
-  "description": "nodezoo.com micro-service handling coveralls meta data",
+  "version": "1.0.0",
+  "description": "nodezoo.com micro-service handling Coveralls meta data",
   "main": "./lib/coveralls.js",
   "homepage": "https://github.com/nodezoo/nodezoo-coveralls#readme",
   "repository": {
@@ -37,6 +37,7 @@
     "git-url-parse": "6.x.x"
   },
   "devDependencies": {
+    "code": "2.2.0",
     "coveralls": "2.11.9",
     "eslint-config-seneca": "2.0.x",
     "eslint-plugin-hapi": "4.0.x",

@@ -13,8 +13,7 @@ var opts = {
     log: 'none'
   },
   coveralls: {
-    token: envs.COVERALLS_TOKEN || 'NO_TOKEN',
-    registry: 'http://registry.npmjs.org/',
+    registry: envs.NPM_REGISTRY || 'http://registry.npmjs.org/',
     url: envs.COVERALLS_REGISTRY || 'https://coveralls.io/'
   },
   mesh: {
