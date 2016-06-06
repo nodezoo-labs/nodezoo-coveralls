@@ -25,7 +25,6 @@
     "cov": "lab -s -P test -r lcov | coveralls"
   },
   "dependencies": {
-    "lodash": "4.x.x",
     "request": "2.69.0",
     "seneca": "2.x.x",
     "seneca-balance-client": "0.4.0",
@@ -34,7 +33,7 @@
     "toolbag": "2.0.0",
     "toolbag-plugin-stats-collector": "1.0.0",
     "toolbag-plugin-udp-reporter": "1.0.0",
-    "git-url-parse": "6.x.x"
+    "parse-github-url": "0.3.1"
   },
   "devDependencies": {
     "code": "2.2.0",

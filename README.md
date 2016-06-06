@@ -114,7 +114,7 @@ seneca.add(`role:info,res:part`, (msg, done) => {})
 ## Data Emitted
 - name: Name of the module,
 - coverageChange: coverage changed,
-- coveragePercent: overall coverage percent,
+- coveredPercent: overall coverage percent,
 - badgeUrl: Url of the Coveralls badge,
 - cached: - The time the data was last cached at.
 
