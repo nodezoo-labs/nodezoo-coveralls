@@ -85,6 +85,14 @@ all available variable names.
   - Changes the npm registry used to retrieve the module info.
   - Defaults to `http://registry.npmjs.org/`.
 
+#### WEB_HOST
+  - The Coveralls host to be published in the Mesh network.
+  - Defaults to `127.0.0.1`.
+
+#### BASE_HOST
+  - Mesh Base location.
+  - Defaults to `127.0.0.1:39999`.
+
 ## Messages Handled
 
 ### `role:coveralls,cmd:get`

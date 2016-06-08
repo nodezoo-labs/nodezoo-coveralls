@@ -18,6 +18,8 @@ var opts = {
   },
   mesh: {
     auto: true,
+    host: envs.WEB_HOST || '127.0.0.1',
+    bases: [envs.BASE_HOST || '127.0.0.1:39999'],
     listen: [
       {pin: 'role:coveralls,cmd:get', model: 'consume'},
       {pin: 'role:info,req:part', model: 'observe'}
