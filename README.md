@@ -58,8 +58,8 @@ Various settings can be changed using environment variables, see the list below 
 all available variable names.
 
 #### COVERALLS_HOST
-  - The host to listen on in isolated mode.
-  - Defaults to `localhost`.
+  - The host to listen on in isolated mode or the host to be published in the Mesh network.
+  - Defaults to `localhost` in isolated mode and to `127.0.0.1` in a Mesh network.
 
 #### COVERALLS_PORT
   - The port to listen on in isolated mode.
@@ -84,10 +84,6 @@ all available variable names.
 #### NPM_REGISTRY
   - Changes the npm registry used to retrieve the module info.
   - Defaults to `http://registry.npmjs.org/`.
-
-#### WEB_HOST
-  - The Coveralls host to be published in the Mesh network.
-  - Defaults to `127.0.0.1`.
 
 #### BASE_HOST
   - Mesh Base location.
