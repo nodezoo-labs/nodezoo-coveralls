@@ -1,13 +1,13 @@
 'use strict'
 
-var Seneca = require('seneca')
-var Entities = require('seneca-entity')
-var Mesh = require('seneca-mesh')
-var Coveralls = require('../lib/coveralls')
-var RedisStore = require('seneca-redis-store')
+const Seneca = require('seneca')
+const Entities = require('seneca-entity')
+const Mesh = require('seneca-mesh')
+const Coveralls = require('../lib/coveralls')
+const RedisStore = require('seneca-redis-store')
 
-var envs = process.env
-var opts = {
+const envs = process.env
+const opts = {
   seneca: {
     tag: envs.COVERALLS_TAG || 'nodezoo-coveralls',
     log: 'none'
@@ -35,7 +35,7 @@ var opts = {
   }
 }
 
-var Service = Seneca(opts.seneca)
+const Service = Seneca(opts.seneca)
 
 Service.use(Entities)
 
