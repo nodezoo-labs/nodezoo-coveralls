@@ -4,6 +4,11 @@ const Code = require('code')
 const Lab = require('lab')
 const Seneca = require('seneca')
 
+const Proxyquire = require('proxyquire')
+const NpmSenecaFakeData = require('./npm-data')
+const CoverallsSenecaFakeData = require('./coveralls-data')
+const InvalidPluginName = 'qwerty_qwerty'
+
 const lab = exports.lab = Lab.script()
 const describe = lab.describe
 const suite = lab.suite
@@ -11,11 +16,34 @@ const before = lab.before
 const it = lab.it
 const expect = Code.expect
 
+const NpmRegistry = 'http://registry.npmjs.org/'
+
+var RequestProxy = {
+  request: {
+    get: (opts, done) => {
+      if (opts.url.includes(NpmRegistry + 'seneca')) {
+        done(null, {}, JSON.stringify(NpmSenecaFakeData))
+      }
+      else if (opts.url.includes(InvalidPluginName)) {
+        done(null, {}, '{}')
+      }
+      else if (opts.url.includes('coveralls.io')) {
+        done(null, {}, JSON.stringify(CoverallsSenecaFakeData))
+      }
+      else {
+        done(new Error('invalid request error'), null, null)
+      }
+    }
+  }
+}
+
+var Coveralls = Proxyquire('..', RequestProxy)
+
 function createInstance () {
   return Seneca({log: 'silent'})
     .use('entity')
-    .use('../lib/coveralls', {
-      registry: 'http://registry.npmjs.org/',
+    .use(Coveralls, {
+      registry: NpmRegistry,
       url: 'https://coveralls.io/'
     })
 }
@@ -91,10 +119,10 @@ describe('Valid "role:coveralls,cmd:get" calls', () => {
   })
 })
 
-describe('An invalid "role:github,cmd:get" call', () => {
+describe('An invalid "role:coveralls,cmd:get" call', () => {
   it('has an error and no data', (done) => {
     const seneca = createInstance()
-    const payload = {name: 'qwerty_qwerty'}
+    const payload = {name: InvalidPluginName}
 
     seneca.ready(function () {
       seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
