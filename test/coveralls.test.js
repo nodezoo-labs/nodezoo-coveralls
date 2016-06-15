@@ -3,6 +3,7 @@
 const Code = require('code')
 const Lab = require('lab')
 const Seneca = require('seneca')
+var _ = require('lodash')
 
 const Proxyquire = require('proxyquire')
 const NpmSenecaFakeData = require('./npm-data')
@@ -18,17 +19,35 @@ const expect = Code.expect
 
 const NpmRegistry = 'http://registry.npmjs.org/'
 
-var RequestProxy = {
+const RequestMap = [
+  {
+    urlMatch: NpmRegistry + 'seneca',
+    err: null,
+    response: {},
+    body: JSON.stringify(NpmSenecaFakeData)
+  },
+  {
+    urlMatch: InvalidPluginName,
+    err: null,
+    response: {},
+    body: '{}'
+  },
+  {
+    urlMatch: 'coveralls.io',
+    err: null,
+    response: {},
+    body: JSON.stringify(CoverallsSenecaFakeData)
+  }
+]
+
+const RequestProxy = {
   request: {
     get: (opts, done) => {
-      if (opts.url.includes(NpmRegistry + 'seneca')) {
-        done(null, {}, JSON.stringify(NpmSenecaFakeData))
-      }
-      else if (opts.url.includes(InvalidPluginName)) {
-        done(null, {}, '{}')
-      }
-      else if (opts.url.includes('coveralls.io')) {
-        done(null, {}, JSON.stringify(CoverallsSenecaFakeData))
+      const request = _.find(RequestMap, (o) => {
+        return opts.url.includes(o.urlMatch)
+      })
+      if (request) {
+        done(request.err, request.response, request.body)
       }
       else {
         done(new Error('invalid request error'), null, null)
@@ -37,7 +56,7 @@ var RequestProxy = {
   }
 }
 
-var Coveralls = Proxyquire('..', RequestProxy)
+const Coveralls = Proxyquire('..', RequestProxy)
 
 function createInstance () {
   return Seneca({log: 'silent'})
