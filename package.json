@@ -21,7 +21,7 @@
   "scripts": {
     "start": "node srv/start.js",
     "isolated": "COVERALLS_ISOLATED=true node srv/start.js",
-    "test": "lab -v -P test -L -c -t 85",
+    "test": "lab -v -P test -L -c -t 89",
     "cov": "lab -s -P test -r lcov | coveralls"
   },
   "files": [
