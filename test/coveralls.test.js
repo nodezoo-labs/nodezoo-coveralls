@@ -2,30 +2,71 @@
 
 const Code = require('code')
 const Lab = require('lab')
+const _ = require('lodash')
 const Seneca = require('seneca')
+
+const Proxyquire = require('proxyquire')
+const NpmSenecaFakeData = require('./npm-data')
+const CoverallsSenecaFakeData = require('./coveralls-data')
 
 const lab = exports.lab = Lab.script()
 const describe = lab.describe
-const suite = lab.suite
 const before = lab.before
+const beforeEach = lab.beforeEach
 const it = lab.it
 const expect = Code.expect
 
-function createInstance () {
-  return Seneca({log: 'silent'})
-    .use('entity')
-    .use('../lib/coveralls', {
-      registry: 'http://registry.npmjs.org/',
-      url: 'https://coveralls.io/'
-    })
+const NpmRegistry = 'http://registry.npmjs.org/'
+const CoverallsUrl = 'https://coveralls.io/'
+const invalidPluginName = 'qwerty_qwerty'
+
+var RequestMap = []
+const RequestProxy = {
+  request: {
+    get: (opts, done) => {
+      const request = _.find(RequestMap, (o) => { return opts.url.includes(o.urlMatch) })
+      if (request) {
+        done(request.err, request.response, request.body)
+      }
+      else {
+        done(new Error('invalid request error'), null, null)
+      }
+    }
+  }
+}
+
+const Coveralls = Proxyquire('..', RequestProxy)
+
+function createInstance (options) {
+  const opts = _.assign({log: 'silent'}, options)
+  return Seneca(opts)
+  .use('seneca-entity')
+  .use(Coveralls, {
+    registry: NpmRegistry,
+    url: CoverallsUrl
+  })
 }
 
 process.setMaxListeners(12)
 
-const si = createInstance()
+describe('nodezoo-coveralls test suite', () => {
+  const si = createInstance()
+  const DefaultRequestMap = [
+    {
+      urlMatch: NpmRegistry + 'seneca',
+      err: null,
+      response: {},
+      body: JSON.stringify(NpmSenecaFakeData)
+    },
+    {
+      urlMatch: 'coveralls.io',
+      err: null,
+      response: {},
+      body: JSON.stringify(CoverallsSenecaFakeData)
+    }
+  ]
 
-suite('nodezoo-coveralls suite tests ', function () {
-  before({}, function (done) {
+  before((done) => {
     si.ready(function (err) {
       if (err) {
         return process.exit(!console.error(err))
@@ -33,112 +74,273 @@ suite('nodezoo-coveralls suite tests ', function () {
       done()
     })
   })
-})
 
-describe('Valid "role:coveralls,cmd:get" calls', () => {
-  it('test non cached valid response', function (done) {
-    const payload = { 'name': 'seneca' }
-    si.act('role:coveralls,cmd:get', payload, function (err, reply) {
-      expect(err).to.not.exist()
-      expect(reply.ok).to.be.true()
-      expect(reply.data.name).to.equal(payload.name)
-      expect(reply.data.coveredPercent).to.be.a.number()
-      expect(reply.data.coverageChange).to.be.a.number()
-      expect(reply.data.badgeUrl).to.exist()
-      expect(reply.data.cached).to.exist()
-
-      done(err)
-    })
+  beforeEach((done) => {
+    RequestMap = DefaultRequestMap.slice()
+    done()
   })
 
-  it('test cached valid response', function (done) {
-    const payload = { 'name': 'seneca' }
-    si.act('role:coveralls,cmd:get', payload, function (err, reply) {
-      expect(err).to.not.exist()
+  describe('Valid "role:coveralls,cmd:get" calls', () => {
+    it('test non cached valid response', (done) => {
+      const payload = { 'name': 'seneca' }
 
-      const cachedOne = reply.cached
+      si.act('role:coveralls,cmd:get', payload, function (err, reply) {
+        expect(err).to.not.exist()
+        expect(reply.ok).to.be.true()
+        expect(reply.data.name).to.equal(payload.name)
+        expect(reply.data.coveredPercent).to.be.a.number()
+        expect(reply.data.coverageChange).to.be.a.number()
+        expect(reply.data.badgeUrl).to.exist()
+        expect(reply.data.cached).to.exist()
+
+        done(err)
+      })
+    })
+
+    it('test cached valid response', (done) => {
+      const payload = { 'name': 'seneca' }
+
+      si.act('role:coveralls,cmd:get', payload, function (err, reply) {
+        expect(err).to.not.exist()
+
+        const cachedOne = reply.data.cached
+        expect(cachedOne).to.exist()
+
+        si.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+
+          const cachedTwo = reply.data.cached
+          expect(cachedTwo).to.exist()
+
+          expect(cachedOne).to.equal(cachedTwo)
+          done()
+        })
+      })
+    })
+
+    it('test non-cached valid reponse - update flag', (done) => {
+      const payload = {name: 'seneca'}
 
       si.act('role:coveralls,cmd:get', payload, (err, reply) => {
         expect(err).to.not.exist()
 
-        const cachedTwo = reply.cached
+        const cachedOne = reply.data.cached
+        expect(cachedOne).to.exist()
+        payload.update = true
 
-        expect(cachedOne).to.equal(cachedTwo)
-        done()
+        si.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+
+          const cachedTwo = reply.data.cached
+          expect(cachedTwo).to.exist()
+
+          expect(cachedOne).to.be.below(cachedTwo)
+
+          done()
+        })
       })
     })
   })
 
-  it('test non-cached valid reponse - update flag', (done) => {
-    const payload = {name: 'seneca'}
+  describe('Invalid "role:coveralls,cmd:get" calls', () => {
+    it('has an error and no data', (done) => {
+      const seneca = createInstance()
+      const payload = {name: invalidPluginName}
+      const invalidPluginMap = {
+        urlMatch: invalidPluginName,
+        err: null,
+        response: {},
+        body: '{}'
+      }
 
-    si.act('role:coveralls,cmd:get', payload, (err, reply) => {
-      expect(err).to.not.exist()
+      seneca.ready(function () {
+        RequestMap = _.concat(DefaultRequestMap, invalidPluginMap)
 
-      const cachedOne = reply.data.cached
-      payload.update = true
+        seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.exist()
 
-      si.act('role:coveralls,cmd:get', payload, (err, reply) => {
-        expect(err).to.not.exist()
+          done()
+        })
+      })
+    })
 
-        const cachedTwo = reply.data.cached
+    it('npm request returns error', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+      const errMsg = 'Request failed'
+      const failedRequestMap = {
+        urlMatch: 'npm',
+        err: errMsg,
+        response: null,
+        body: null
+      }
 
-        expect(cachedOne).to.be.below(cachedTwo)
+      seneca.ready(function () {
+        RequestMap = _.concat([], failedRequestMap)
 
-        done()
+        seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.equal(errMsg)
+
+          done()
+        })
+      })
+    })
+
+    it('npm request invalid body', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+      const failedRequestMap = {
+        urlMatch: 'npm',
+        err: null,
+        response: null,
+        body: {}
+      }
+
+      seneca.ready(function () {
+        RequestMap = _.concat([], failedRequestMap)
+
+        seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.exist()
+
+          done()
+        })
+      })
+    })
+
+    it('coveralls request returns error', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+      const errMsg = 'Request failed'
+      const failedRequestMap = {
+        urlMatch: 'coveralls',
+        err: errMsg,
+        response: null,
+        body: null
+      }
+
+      seneca.ready(function () {
+        RequestMap = _.concat([], failedRequestMap, DefaultRequestMap[0])
+
+        seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.equal(errMsg)
+
+          done()
+        })
+      })
+    })
+
+    it('coveralls request invalid body', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+      const failedRequestMap = {
+        urlMatch: 'coveralls',
+        err: null,
+        response: null,
+        body: {}
+      }
+
+      seneca.ready(function () {
+        RequestMap = _.concat([], failedRequestMap, DefaultRequestMap[0])
+
+        seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.exist()
+
+          done()
+        })
       })
     })
   })
-})
 
-describe('An invalid "role:github,cmd:get" call', () => {
-  it('has an error and no data', (done) => {
-    const seneca = createInstance()
-    const payload = {name: 'qwerty_qwerty'}
+  describe('Valid "role:info,req:part" calls', () => {
+    it('has no error and has data', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
 
-    seneca.ready(function () {
-      seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
-        expect(err).to.not.exist()
-        expect(reply.ok).to.be.false()
-        expect(reply.err).to.exist()
+      seneca.ready(function () {
+        seneca.act('role:info,req:part', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.true()
 
-        done()
+          done()
+        })
+      })
+    })
+
+    it('responds via "role:info,res:part"', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+
+      seneca.ready(function () {
+        seneca.add('role:info,res:part', (msg, cb) => {
+          expect(msg).to.exist()
+
+          cb()
+          done()
+        })
+
+        seneca.act('role:info,req:part', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply).to.exist()
+          expect(reply.ok).to.be.true()
+        })
       })
     })
   })
-})
 
-describe('A valid "role:info,req:part" call', () => {
-  it('has no error and has data', (done) => {
-    const seneca = createInstance()
-    const payload = {name: 'seneca'}
+  describe('Invalid "role:info,req:part" calls', () => {
+    it('calls role:coveralls,cmd:get and receives an error', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+      const errMsg = 'error'
 
-    seneca.ready(function () {
-      seneca.act('role:info,req:part', payload, (err, reply) => {
-        expect(err).to.not.exist()
-        expect(reply.ok).to.be.true()
+      seneca.ready(function () {
+        seneca.add('role:coveralls,cmd:get', (msg, cb) => {
+          expect(msg).to.exist()
 
-        done()
+          cb(errMsg, null)
+          done()
+        })
+
+        seneca.act('role:info,req:part', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply).to.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.equal(errMsg)
+        })
       })
     })
-  })
 
-  it('responds via "role:info,res:part"', (done) => {
-    const seneca = createInstance()
-    const payload = {name: 'seneca'}
+    it('calls role:coveralls,cmd:get and the npm request fails', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+      const errMsg = 'Request failed'
+      const failedRequestMap = {
+        urlMatch: 'npm',
+        err: errMsg,
+        response: null,
+        body: null
+      }
 
-    seneca.ready(function () {
-      seneca.add('role:info,res:part', (msg, cb) => {
-        expect(msg).to.exist()
+      seneca.ready(function () {
+        RequestMap = _.concat([], failedRequestMap)
 
-        cb()
-        done()
-      })
+        seneca.act('role:info,req:part', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.equal(errMsg)
 
-      seneca.act('role:info,req:part', payload, (err, reply) => {
-        expect(err).to.not.exist()
-        expect(reply).to.exist()
-        expect(reply.ok).to.be.true()
+          done()
+        })
       })
     })
   })
