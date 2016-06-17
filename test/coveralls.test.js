@@ -8,16 +8,17 @@ const Seneca = require('seneca')
 const Proxyquire = require('proxyquire')
 const NpmSenecaFakeData = require('./npm-data')
 const CoverallsSenecaFakeData = require('./coveralls-data')
-const InvalidPluginName = 'qwerty_qwerty'
 
 const lab = exports.lab = Lab.script()
 const describe = lab.describe
 const before = lab.before
+const beforeEach = lab.beforeEach
 const it = lab.it
 const expect = Code.expect
 
 const NpmRegistry = 'http://registry.npmjs.org/'
 const CoverallsUrl = 'https://coveralls.io/'
+const invalidPluginName = 'qwerty_qwerty'
 
 var RequestMap = []
 const RequestProxy = {
@@ -48,9 +49,8 @@ function createInstance (options) {
 
 process.setMaxListeners(12)
 
-describe('nodezoo-coveralls test suite', function () {
+describe('nodezoo-coveralls test suite', () => {
   const si = createInstance()
-
   const DefaultRequestMap = [
     {
       urlMatch: NpmRegistry + 'seneca',
@@ -66,7 +66,7 @@ describe('nodezoo-coveralls test suite', function () {
     }
   ]
 
-  before({}, function (done) {
+  before((done) => {
     si.ready(function (err) {
       if (err) {
         return process.exit(!console.error(err))
@@ -75,10 +75,14 @@ describe('nodezoo-coveralls test suite', function () {
     })
   })
 
+  beforeEach((done) => {
+    RequestMap = DefaultRequestMap.slice()
+    done()
+  })
+
   describe('Valid "role:coveralls,cmd:get" calls', () => {
-    it('test non cached valid response', function (done) {
+    it('test non cached valid response', (done) => {
       const payload = { 'name': 'seneca' }
-      RequestMap = DefaultRequestMap.slice()
 
       si.act('role:coveralls,cmd:get', payload, function (err, reply) {
         expect(err).to.not.exist()
@@ -93,9 +97,8 @@ describe('nodezoo-coveralls test suite', function () {
       })
     })
 
-    it('test cached valid response', function (done) {
+    it('test cached valid response', (done) => {
       const payload = { 'name': 'seneca' }
-      RequestMap = DefaultRequestMap.slice()
 
       si.act('role:coveralls,cmd:get', payload, function (err, reply) {
         expect(err).to.not.exist()
@@ -117,7 +120,6 @@ describe('nodezoo-coveralls test suite', function () {
 
     it('test non-cached valid reponse - update flag', (done) => {
       const payload = {name: 'seneca'}
-      RequestMap = DefaultRequestMap.slice()
 
       si.act('role:coveralls,cmd:get', payload, (err, reply) => {
         expect(err).to.not.exist()
@@ -143,9 +145,9 @@ describe('nodezoo-coveralls test suite', function () {
   describe('Invalid "role:coveralls,cmd:get" calls', () => {
     it('has an error and no data', (done) => {
       const seneca = createInstance()
-      const payload = {name: InvalidPluginName}
+      const payload = {name: invalidPluginName}
       const invalidPluginMap = {
-        urlMatch: InvalidPluginName,
+        urlMatch: invalidPluginName,
         err: null,
         response: {},
         body: '{}'
@@ -257,43 +259,6 @@ describe('nodezoo-coveralls test suite', function () {
         })
       })
     })
-
-    // it('cache load returns error', (done) => {
-    //   const errMsg = 'Request failed'
-    //   const cache = {
-    //     load$: function (name, cb) {
-    //       if (!cb) {
-    //         return null
-    //       }
-
-    //       return cb(errMsg, null)
-    //     }
-    //   }
-    //   const SenecaProxy = {
-    //     'seneca': {
-    //       api_make: () => {
-    //         console.log('mocked entity')
-    //         return cache
-    //       }
-    //     }
-    //   }
-
-    //   const si = createInstance()
-    //   si.make$ = SenecaProxy.seneca.api_make
-    //   const payload = {name: 'seneca'}
-
-    //   si.ready(function () {
-    //     RequestMap = DefaultRequestMap.slice()
-
-    //     si.act('role:coveralls,cmd:get', payload, (err, reply) => {
-    //       expect(err).to.not.exist()
-    //       expect(reply.ok).to.be.false()
-    //       expect(reply.err).to.equal(errMsg)
-
-    //       done()
-    //     })
-    //   })
-    // })
   })
 
   describe('Valid "role:info,req:part" calls', () => {
@@ -302,7 +267,6 @@ describe('nodezoo-coveralls test suite', function () {
       const payload = {name: 'seneca'}
 
       seneca.ready(function () {
-        RequestMap = DefaultRequestMap.slice()
         seneca.act('role:info,req:part', payload, (err, reply) => {
           expect(err).to.not.exist()
           expect(reply.ok).to.be.true()
@@ -317,7 +281,6 @@ describe('nodezoo-coveralls test suite', function () {
       const payload = {name: 'seneca'}
 
       seneca.ready(function () {
-        RequestMap = DefaultRequestMap.slice()
         seneca.add('role:info,res:part', (msg, cb) => {
           expect(msg).to.exist()
 
@@ -341,7 +304,6 @@ describe('nodezoo-coveralls test suite', function () {
       const errMsg = 'error'
 
       seneca.ready(function () {
-        RequestMap = DefaultRequestMap.slice()
         seneca.add('role:coveralls,cmd:get', (msg, cb) => {
           expect(msg).to.exist()
 
