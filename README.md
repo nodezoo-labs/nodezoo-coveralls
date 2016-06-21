@@ -1,7 +1,7 @@
 ![logo-nodezoo][Logo]
 
 # nodezoo-coveralls
-- __Lead:__ [Richard Rodger][Lead]
+- __Lead:__ [Mihai Dima][Lead]
 - __Sponsor:__ [nearForm][]
 
 A microservice that provides Coveralls data for [NodeZoo org][]. This microservice depends
@@ -131,14 +131,14 @@ If you feel you can help in any way, be it with documentation, examples, extra t
 features please get in touch.
 
 ## License
-Copyright (c) 2016, Matthew O'Connor and other contributors.
+Copyright (c) 2016, Mihai Dima and other contributors.
 Licensed under [MIT][].
 
 [main repo]: https://github.com/nodezoo/nodezoo-org
 [MIT]: ./LICENSE
 [CoC]: https://github.com/nodezoo/nodezoo-org/blob/master/CoC.md
 [nearForm]: http://www.nearform.com/
-[Lead]: https://github.com/rjrodger
+[Lead]: https://github.com/mihaidma
 [NodeZoo org]: https://github.com/nodezoo
 [Logo]: https://github.com/nodezoo/nodezoo-org/blob/master/assets/logo-nodezoo.png
 [github issue]: https://github.com/nodezoo/nodezoo-coveralls/issues
