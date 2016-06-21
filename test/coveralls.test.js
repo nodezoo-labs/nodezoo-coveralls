@@ -143,7 +143,7 @@ describe('nodezoo-coveralls test suite', () => {
   })
 
   describe('Invalid "role:coveralls,cmd:get" calls', () => {
-    it('has an error and no data', (done) => {
+    it('has no error and no data', (done) => {
       const seneca = createInstance()
       const payload = {name: invalidPluginName}
       const invalidPluginMap = {
@@ -245,6 +245,29 @@ describe('nodezoo-coveralls test suite', () => {
         err: null,
         response: null,
         body: {}
+      }
+
+      seneca.ready(function () {
+        RequestMap = _.concat([], failedRequestMap, DefaultRequestMap[0])
+
+        seneca.act('role:coveralls,cmd:get', payload, (err, reply) => {
+          expect(err).to.not.exist()
+          expect(reply.ok).to.be.false()
+          expect(reply.err).to.exist()
+
+          done()
+        })
+      })
+    })
+
+    it('coveralls request invalid body', (done) => {
+      const seneca = createInstance()
+      const payload = {name: 'seneca'}
+      const failedRequestMap = {
+        urlMatch: 'coveralls',
+        err: null,
+        response: { statusCode: 404 },
+        body: '<html lang=\'en\'></html>'
       }
 
       seneca.ready(function () {
