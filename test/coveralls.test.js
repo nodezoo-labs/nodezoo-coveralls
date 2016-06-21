@@ -266,7 +266,7 @@ describe('nodezoo-coveralls test suite', () => {
       const failedRequestMap = {
         urlMatch: 'coveralls',
         err: null,
-        response: null,
+        response: { statusCode: 404 },
         body: '<html lang=\'en\'></html>'
       }
 
