@@ -55,7 +55,7 @@ variable.
 
 Any of the messages above can be run using curl in the following format in the command line
 ```
-curl -d '{"role":"coveralls","cmd":"get","name":"YOUR_TEXT_HERE"}' http://localhost:52472/act
+curl -d '{"role":"coveralls","cmd":"get","name":"YOUR_TEXT_HERE"}' http://localhost:8054/act
 ```
 ## Configuration
 
