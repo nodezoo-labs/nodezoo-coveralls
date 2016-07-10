@@ -1,4 +1,5 @@
-## WIP - x.x.x
+
+## 3.0.0 - July 10, 2016
 * Corrected dependency issues
 * Fixed package.json info that was missing
 * Updated all applicable dependencies
@@ -7,9 +8,9 @@
 * Badged and tidied readme
 * Added auto reporting to coveralls
 
-## June 17, 2016 - 2.0.0
+## 2.0.0 - June 17, 2016
 * Changed the role:info,req:part response
 * Enhanced tests
 
-## June 13, 2016 - 1.1.0
+## 1.1.0 - June 13, 2016
 * Enhanced the Coveralls info delivered
