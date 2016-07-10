@@ -4,6 +4,8 @@
 * Updated all applicable dependencies
 * Verify coveralls.io response header status codes
 * Removed toolbag support completely
+* Badged and tidied readme
+* Added auto reporting to coveralls
 
 ## June 17, 2016 - 2.0.0
 * Changed the role:info,req:part response
