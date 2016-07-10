@@ -1,4 +1,5 @@
 # nodezoo-coveralls
+
 FROM node:4
 
 RUN mkdir /src
@@ -11,4 +12,4 @@ RUN npm install
 
 COPY . /src
 
-CMD ["node", "-r", "toolbag", "srv/start.js", "--seneca.options.tag=nodezoo-coveralls", "--seneca-log=type:act"]
+CMD ["node", "srv/start.js", "--seneca.options.tag=nodezoo-coveralls", "--seneca-log=type:act"]
