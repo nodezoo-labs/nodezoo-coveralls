@@ -1,19 +1,25 @@
 ![logo-nodezoo][Logo]
 
 # nodezoo-coveralls
+[![Npm][BadgeNpm]][Npm]
+[![Travis][BadgeTravis]][Travis]
+[![Coveralls][BadgeCoveralls]][Coveralls]
+[![Gitter][BadgeGitter]][Gitter]
+
 - __Lead:__ [Mihai Dima][Lead]
-- __Sponsor:__ [nearForm][]
+- __Sponsor:__ [nearForm][Sponsor]
 
 A microservice that provides Coveralls data for [NodeZoo org][]. This microservice depends
 on [Coveralls][] and the NPM registry but also caches retrieved data to reduce load on both
 public registries.
-Please see the [main repo][] for more details.
+
+Please see the [Nodezoo System][System] for more details.
 
 If you're using this microservice, and need help, you can:
 
-- Post a [github issue][],
-- Tweet to [@nodezoo][],
-- Ask on the [Gitter][gitter-url].
+- Post a [github issue][Issue],
+- Tweet to [@nodezoo][Twitter],
+- Ask on the [Gitter][Gitter].
 
 ## Install
 - clone this repo into a root _/nodezoo_ folder
@@ -134,15 +140,20 @@ features please get in touch.
 Copyright (c) 2016, Mihai Dima and other contributors.
 Licensed under [MIT][].
 
-[main repo]: https://github.com/nodezoo/nodezoo-org
-[MIT]: ./LICENSE
+[BadgeCoveralls]: https://coveralls.io/repos/github/nodezoo/nodezoo-coveralls/badge.svg?branch=master
+[BadgeTravis]: https://travis-ci.org/nodezoo/nodezoo-coveralls.svg
+[BadgeGitter]: https://badges.gitter.im/Join%20Chat.svg
+[BadgeNpm]: https://badge.fury.io/js/nodezoo-coveralls.svg
+[Coveralls]: https://coveralls.io/github/nodezoo/nodezoo-coveralls?branch=master
 [CoC]: https://github.com/nodezoo/nodezoo-org/blob/master/CoC.md
-[nearForm]: http://www.nearform.com/
+[Gitter]: https://gitter.im/nodezoo/nodezoo-org
+[Travis]: https://travis-ci.org/nodezoo/nodezoo-coveralls
+[Logo]: https://raw.githubusercontent.com/nodezoo/nodezoo-org/master/assets/logo-nodezoo.png
+[Npm]: http://npmjs.org/nodezoo-coveralls
+[Sponsor]: http://nearform.com
 [Lead]: https://github.com/mihaidma
 [NodeZoo org]: https://github.com/nodezoo
-[Logo]: https://github.com/nodezoo/nodezoo-org/blob/master/assets/logo-nodezoo.png
-[github issue]: https://github.com/nodezoo/nodezoo-coveralls/issues
-[@nodezoo]: http://twitter.com/nodezoo
-[gitter-url]: https://gitter.im/nodezoo/nodezoo-org
-[Coveralls]: https://coveralls.io
+[Lic]: ./LICENSE
+[Issue]: https://github.com/nodezoo/nodezoo-coveralls/issues
+[Twitter]: http://twitter.com/nodezoo
 [System]: https://github.com/nodezoo/nodezoo-system
