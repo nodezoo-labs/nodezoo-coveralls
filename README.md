@@ -153,7 +153,7 @@ Licensed under [MIT][].
 [Sponsor]: http://nearform.com
 [Lead]: https://github.com/mihaidma
 [NodeZoo org]: https://github.com/nodezoo
-[Lic]: ./LICENSE
+[MIT]: ./LICENSE
 [Issue]: https://github.com/nodezoo/nodezoo-coveralls/issues
 [Twitter]: http://twitter.com/nodezoo
 [System]: https://github.com/nodezoo/nodezoo-system
